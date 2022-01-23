@@ -46,9 +46,13 @@ class GetFundListFromWeb(GetFundList):
 
     def _set_fund_list_generator(self, **kwargs):
         header = {"User-Agent" : my_ua.random}
-        
+
+        """
         page = requests.get('http://fund.eastmoney.com/Data/Fund_JJJZ_Data.aspx?t=1&lx=1&letter=&gsid=&text=&sort=zdf,'
                             'desc&page=1,&feature=|&dt=1536654761529&atfc=&onlySale=0', headers=header)
+        """        
+
+        page = requests.get('http://fund.eastmoney.com/data/fundranking.html#tall;c0;r;s6yzf;pn10000;ddesc;qsd20210122;qed20220122;qdii;zq;gg;gzbd;gzfs;bbzt;sfbb',headers=header)
         fund_list = re.findall(r'"[0-9]{6}",".+?"',page.text)
         self._sum_of_fund = len(fund_list)
         self._fund_list_generator = (f'{i[1:7]},{i[10:-1]}' for i in fund_list)
@@ -66,5 +70,8 @@ class Test(GetFundListFromWeb):
         return: iterator str 基金编号，基金名称
         """
         super()._set_fund_list_generator()
-        from_index = random.randint(0,self._sum_of_fund - self.TEST_NUM)
-        fund_list
+        head_index= random.randint(0,self._sum_of_fund - self.TEST_NUM)
+        fund_list = list(self._fund_list_generator)[from_index:from_index + self.TEST_NUM]
+        self._fund_list_generator = (i for i in fund_list)
+        self._sum_of_fund = self.TEST_NUM
+
